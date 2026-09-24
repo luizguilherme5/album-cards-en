@@ -19,7 +19,11 @@ export function PdfPreview({ url, en }: { url: string; en: boolean }) {
         if (cancelled) return;
         const page = await pdf.getPage(i);
         const canvas = document.createElement('canvas');
-        const viewport = page.getViewport({ scale: 2 });
+        // Match the displayed width at Retina resolution, including small single-card PDFs.
+        const pageWidth = page.view[2] - page.view[0];
+        const displayWidth = pageWidth < 200 ? 360 : (container.current?.clientWidth || 1000);
+        const scale = Math.min(6, Math.max(2, (displayWidth / pageWidth) * (window.devicePixelRatio || 1)));
+        const viewport = page.getViewport({ scale });
         canvas.width = viewport.width;
         canvas.height = viewport.height;
         canvas.setAttribute('aria-label', `${en ? 'Page' : 'Página'} ${i} / ${pdf.numPages}`);
