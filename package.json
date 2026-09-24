@@ -1,0 +1,42 @@
+{
+  "name": "album-cards-en",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "engines": {
+    "node": ">=22.12"
+  },
+  "scripts": {
+    "dev": "node scripts/dev.mjs",
+    "serve:dev": "node --import tsx server/main.ts",
+    "build": "tsc --noEmit && vite build",
+    "start": "node --import tsx server/main.ts --production",
+    "test": "node --import tsx --test tests/*.test.ts",
+    "typecheck": "tsc --noEmit",
+    "format": "prettier --write src server shared tests scripts *.json *.ts",
+    "format:check": "prettier --check src server shared tests scripts *.json *.ts"
+  },
+  "dependencies": {
+    "@pdf-lib/fontkit": "^1.1.1",
+    "express": "^5.1.0",
+    "fast-xml-parser": "^5.2.0",
+    "music-metadata": "^11.0.0",
+    "pdf-lib": "^1.17.1",
+    "pdfjs-dist": "^6.3.289",
+    "react": "^19.1.0",
+    "react-dom": "^19.1.0",
+    "sharp": "^0.34.0",
+    "tsx": "^4.20.0",
+    "zod": "^3.25.0"
+  },
+  "devDependencies": {
+    "@types/express": "^5.0.0",
+    "@types/node": "^22.15.0",
+    "@types/react": "^19.1.0",
+    "@types/react-dom": "^19.1.0",
+    "@vitejs/plugin-react": "^4.7.0",
+    "prettier": "^3.9.9",
+    "typescript": "^5.8.0",
+    "vite": "^7.1.0"
+  }
+}

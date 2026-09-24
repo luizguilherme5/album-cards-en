@@ -1,0 +1,47 @@
+{
+  "source_blend": "stand-rfid-texturas-v3.blend",
+  "scene": "V3 | Orientação de impressão",
+  "unit": "mm",
+  "parts": [
+    {
+      "name": "P01-base",
+      "source": "P01 | BASE fita — fundo na mesa",
+      "triangles": 19728,
+      "dimensions_mm": [
+        107.19999298453331,
+        88.40000629425049,
+        44.962327927351
+      ],
+      "min_z_mm": 0.0
+    },
+    {
+      "name": "P02-corpo",
+      "source": "P02 | CORPO + guia — imprimir em pé",
+      "triangles": 34840,
+      "dimensions_mm": [
+        77.60000601410866,
+        31.279996037483215,
+        128.9999932050705
+      ],
+      "min_z_mm": 0.0
+    },
+    {
+      "name": "P03-tampa",
+      "source": "P03 | TAMPA — face externa na mesa",
+      "triangles": 22274,
+      "dimensions_mm": [
+        67.4000009894371,
+        120.899997651577,
+        19.800010502348364
+      ],
+      "min_z_mm": 0.0
+    }
+  ],
+  "layout_xy_mm": [
+    186.29999458789825,
+    173.45000803470612
+  ],
+  "layout_centered_on_220mm_plate": true,
+  "printer_profile_embedded": false,
+  "sliced": false
+}

@@ -1,0 +1,2 @@
+# This application uses the native lite runtime. No container is needed.
+services: {}

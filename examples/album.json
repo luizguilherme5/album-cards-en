@@ -1,0 +1,14 @@
+{
+  "id": "my-first-album",
+  "title": "First Light",
+  "artist": "Example Artist",
+  "year": "2026",
+  "label": "Example Records",
+  "spotifyId": "",
+  "plexKey": "",
+  "tracks": [
+    { "disc": 1, "number": 1, "title": "A New Beginning", "seconds": 181 },
+    { "disc": 1, "number": 2, "title": "Open Windows", "seconds": 205 },
+    { "disc": 2, "number": 1, "title": "After Hours", "seconds": 194 }
+  ]
+}

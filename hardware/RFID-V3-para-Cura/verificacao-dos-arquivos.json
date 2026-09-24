@@ -1,0 +1,127 @@
+{
+  "files": {
+    "V3-todas-as-pecas-organizadas-mm.stl": {
+      "triangles": 76842,
+      "components": 3,
+      "nonmanifold_edges": 0,
+      "consistent_winding": true,
+      "volume_mm3": 228269.485,
+      "dimensions_mm": [
+        186.29999,
+        173.45001,
+        129.0
+      ],
+      "bed_contact_mm2": 15992.406,
+      "minimum_z_mm": 0.0,
+      "sha256": "8f9239090695ae5d245b75b2010df8461d076bb35aed4ce4b586e9e2cdd8a469"
+    },
+    "pecas-individuais/P01-base-mm.stl": {
+      "triangles": 19728,
+      "components": 1,
+      "nonmanifold_edges": 0,
+      "consistent_winding": true,
+      "volume_mm3": 138384.817,
+      "dimensions_mm": [
+        107.19999,
+        88.40001,
+        44.96233
+      ],
+      "bed_contact_mm2": 7905.297,
+      "minimum_z_mm": 0.0,
+      "sha256": "c4195883c1871c771b70836d1a3e6aa251ad60be05de430e15bf0765735b8025"
+    },
+    "pecas-individuais/P02-corpo-mm.stl": {
+      "triangles": 34840,
+      "components": 1,
+      "nonmanifold_edges": 0,
+      "consistent_winding": true,
+      "volume_mm3": 64836.252,
+      "dimensions_mm": [
+        77.60001,
+        31.28,
+        129.0
+      ],
+      "bed_contact_mm2": 458.0,
+      "minimum_z_mm": 0.0,
+      "sha256": "a8d0afbcda0369b5d0d4cdf49fd17fb522c9e8ad3202d44d884f5da23cfb5982"
+    },
+    "pecas-individuais/P03-tampa-mm.stl": {
+      "triangles": 22274,
+      "components": 1,
+      "nonmanifold_edges": 0,
+      "consistent_winding": true,
+      "volume_mm3": 25048.41,
+      "dimensions_mm": [
+        67.4,
+        120.89999,
+        19.80001
+      ],
+      "bed_contact_mm2": 7629.109,
+      "minimum_z_mm": 0.0,
+      "sha256": "aa7985fdbe3bf4819f77d6727e1f92ec92435576c77b70e7aa552a6e18413b40"
+    },
+    "V3-todas-as-pecas-organizadas.3mf": {
+      "unit": "millimeter",
+      "mesh_objects": 3,
+      "grouped_layout": true,
+      "bounds_on_220mm_plate": [
+        [
+          16.85,
+          23.275,
+          0.0
+        ],
+        [
+          203.15,
+          196.725,
+          128.99999
+        ]
+      ],
+      "parts": [
+        {
+          "triangles": 19728,
+          "components": 1,
+          "nonmanifold_edges": 0,
+          "consistent_winding": true,
+          "volume_mm3": 138384.82,
+          "dimensions_mm": [
+            107.19999,
+            88.40001,
+            44.96233
+          ],
+          "bed_contact_mm2": 7905.297,
+          "minimum_z_mm": 0.0
+        },
+        {
+          "triangles": 34840,
+          "components": 1,
+          "nonmanifold_edges": 0,
+          "consistent_winding": true,
+          "volume_mm3": 64836.253,
+          "dimensions_mm": [
+            77.60001,
+            31.28,
+            128.99999
+          ],
+          "bed_contact_mm2": 458.0,
+          "minimum_z_mm": 0.0
+        },
+        {
+          "triangles": 22274,
+          "components": 1,
+          "nonmanifold_edges": 0,
+          "consistent_winding": true,
+          "volume_mm3": 25048.413,
+          "dimensions_mm": [
+            67.4,
+            120.9,
+            19.80001
+          ],
+          "bed_contact_mm2": 7629.109,
+          "minimum_z_mm": 0.0
+        }
+      ],
+      "sha256": "16c17e81cf52fd6c82d65005ee8b026f0ffb676a4e4ccc63b14da141a093c977"
+    }
+  },
+  "sliced_in_cura": false
+}
