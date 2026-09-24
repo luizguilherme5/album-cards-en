@@ -104,7 +104,7 @@ export async function saveImage(
   store: Store,
   input: Uint8Array,
   id: string,
-  kind: 'original' | 'vertical',
+  kind: 'original' | 'vertical' | 'artSource',
 ) {
   const image = sharp(input, { limitInputPixels: 40_000_000 }).rotate();
   const meta = await image.metadata();

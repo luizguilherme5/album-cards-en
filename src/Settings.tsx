@@ -11,6 +11,11 @@ export function Settings({
   refresh: () => void;
   report: (e: unknown) => void;
 }) {
+  const [players, setPlayers] = useState<any[] | null>(null);
+  const [catalog, setCatalog] = useState<any[] | null>(null);
+  const [query, setQuery] = useState('');
+  const [chosen, setChosen] = useState<string[]>([]);
+  const [importResult, setImportResult] = useState('');
   const [form, setForm] = useState<any>({ ...state.config, plexToken: '' });
   const [devices, setDevices] = useState<any[]>([]),
     [readers, setReaders] = useState<any[]>([]),
@@ -148,8 +153,8 @@ export function Settings({
         <h2>Plex / Caldera</h2>
         <p>
           {t(
-            'O Plex organiza seus arquivos; o Plexamp toca. Caldera é o player sem tela do Plexamp.',
-            'Plex organizes your files; Plexamp plays them. Caldera is the headless Plexamp player.',
+            'O Plex organiza seus arquivos. O Caldera reproduz no Linux e pode ser controlado pelo Plexamp.',
+            'Plex organizes your files. Caldera plays on Linux and can be controlled by Plexamp.',
           )}
         </p>
         {field('plexUrl', t('Endereço do Plex', 'Plex address'), 'url', 'http://your-server:32400')}
@@ -157,6 +162,45 @@ export function Settings({
           'plexToken',
           t('Token Plex (deixe vazio para manter)', 'Plex token (blank keeps the saved token)'),
           'password',
+        )}
+        <button
+          disabled={busy}
+          onClick={() =>
+            action(async () => {
+              await save();
+              setPlayers(await api('/plex/players'));
+            })
+          }
+        >
+          {t('Encontrar Caldera na rede', 'Find Caldera on the network')}
+        </button>
+        {players && (
+          <label>
+            {t('Player encontrado', 'Discovered player')}
+            <select
+              value={form.calderaClientId}
+              onChange={(e) => {
+                const player = players.find((p) => p.id === e.target.value);
+                if (player)
+                  setForm({ ...form, calderaUrl: player.url, calderaClientId: player.id });
+              }}
+            >
+              <option value="">{t('Selecione um player', 'Choose a player')}</option>
+              {players.map((p) => (
+                <option value={p.id} key={p.id}>
+                  {p.name}
+                </option>
+              ))}
+            </select>
+            {!players.length && (
+              <small>
+                {t(
+                  'Ligue o Caldera e entre na mesma conta Plex. Se necessário, preencha os campos abaixo manualmente.',
+                  'Start Caldera and sign in to the same Plex account. You can also fill in the fields below manually.',
+                )}
+              </small>
+            )}
+          </label>
         )}
         {field(
           'calderaUrl',
@@ -172,14 +216,102 @@ export function Settings({
           onClick={() =>
             action(async () => {
               await save();
-              await api('/plex/import', {});
+              setCatalog(await api('/plex/albums'));
+              setChosen([]);
+              setImportResult('');
             })
           }
           disabled={busy}
         >
-          {t('Importar biblioteca do Plex', 'Import Plex library')}
+          {busy
+            ? t('Conectando…', 'Connecting…')
+            : t('Escolher álbuns do Plex', 'Choose Plex albums')}
         </button>
       </section>
+      {importResult && (
+        <p className="message" role="status">
+          {importResult}
+        </p>
+      )}
+      {catalog && (
+        <div className="overlay">
+          <section
+            className="dialog"
+            role="dialog"
+            aria-modal="true"
+            aria-labelledby="plex-import-title"
+          >
+            <div className="dialog-title">
+              <h2 id="plex-import-title">{t('Sua biblioteca no Plex', 'Your Plex library')}</h2>
+              <button
+                aria-label={t('Fechar', 'Close')}
+                disabled={busy}
+                onClick={() => setCatalog(null)}
+              >
+                ✕
+              </button>
+            </div>
+            <p>
+              {t(
+                'Escolha até 50 álbuns por vez. Importamos as faixas e a capa original; seus arquivos de música ficam onde estão.',
+                'Choose up to 50 albums. We import track details and original covers; your music files stay where they are.',
+              )}
+            </p>
+            <label>
+              {t('Buscar artista ou álbum', 'Search artist or album')}
+              <input value={query} onChange={(e) => setQuery(e.target.value)} />
+            </label>
+            <p>
+              {catalog.length} {t('álbuns encontrados', 'albums found')} · {chosen.length}/50{' '}
+              {t('selecionados', 'selected')}
+            </p>
+            <div className="plex-catalog">
+              {catalog
+                .filter((a) => `${a.title} ${a.artist}`.toLowerCase().includes(query.toLowerCase()))
+                .sort((a, b) => a.title.localeCompare(b.title))
+                .map((a) => (
+                  <label className="check" key={a.plexKey}>
+                    <input
+                      type="checkbox"
+                      checked={chosen.includes(a.plexKey)}
+                      disabled={busy || (!chosen.includes(a.plexKey) && chosen.length >= 50)}
+                      onChange={() =>
+                        setChosen((old) =>
+                          old.includes(a.plexKey)
+                            ? old.filter((k) => k !== a.plexKey)
+                            : [...old, a.plexKey],
+                        )
+                      }
+                    />
+                    <span>
+                      <strong>{a.title}</strong>
+                      <small>
+                        {a.artist} · {a.year}
+                      </small>
+                    </span>
+                  </label>
+                ))}
+            </div>
+            <button
+              className="primary"
+              disabled={busy || !chosen.length}
+              onClick={() =>
+                action(async () => {
+                  const result = await api('/plex/import', { keys: chosen });
+                  setImportResult(
+                    `${result.albums} ${t('álbuns importados com dados do Plex', 'albums imported from Plex')}. ${result.warnings.length ? result.warnings.join('; ') : ''}`,
+                  );
+                  setCatalog(null);
+                })
+              }
+            >
+              {busy
+                ? t('Importando faixas e capas…', 'Importing tracks and covers…')
+                : t('Importar selecionados', 'Import selected')}
+            </button>
+          </section>
+        </div>
+      )}
       <section className="panel">
         <span className="eyebrow">02 / USB</span>
         <h2>{t('Conectar leitor', 'Connect a reader')}</h2>

@@ -22,7 +22,12 @@ export const albumSchema = z.object({
   plexKey: z.string().regex(/^\d+$/).optional().or(z.literal('')),
 });
 export type Album = z.infer<typeof albumSchema>;
-export type LibraryAlbum = Album & { original?: string; vertical?: string; source?: string };
+export type LibraryAlbum = Album & {
+  original?: string;
+  vertical?: string;
+  artSource?: string;
+  source?: string;
+};
 export const CARD = { widthMm: 54, heightMm: 85.6, widthPx: 1080, heightPx: 1712 };
 export const configSchema = z.object({
   provider: z.enum(['spotify', 'plex']).default('spotify'),

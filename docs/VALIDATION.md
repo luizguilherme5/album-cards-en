@@ -11,12 +11,14 @@
 - PKCE S256 challenge correctness and rejection of a callback from a different browser session.
 - PDF dimensions, multi-disc fitting, missing-cover rejection and overflow rejection.
 - Image re-encoding, exact vertical dimensions and distinct URLs after image changes.
+- Real Plex catalog listing, selective import of six albums with tracks and original covers, and Caldera discovery. Private configuration stays in ignored local data.
+- Plex numeric XML entities decode correctly; remote artwork cannot send credentials to another host.
 - Browser flow: create album, edit metadata, upload artwork, crop, save, and open PDF preview.
 
 ## Needs your setup / Depende do seu setup
 
 - Real OAuth consent and playback: no Spotify developer app or connected Premium account was supplied.
-- Actual Plex/Caldera playback: the new app does not borrow production credentials.
+- Actual Plex/Caldera playback triggered by a physical card in the new app remains to be verified.
 - Physical USB hotplug on Linux and the exact hardware's event format.
 - Real print measurement and duplex alignment.
 
@@ -26,7 +28,7 @@
 - Browser keyboard capture requires focus. Native Linux mode supports 64-bit numeric event readers.
 - Metadata scanning does not certify album completeness or decode every audio sample.
 - Scanner limit: 20,000 audio files and 12 folder levels per import; split very large libraries into smaller folders.
-- Plex imports metadata and track identifiers; upload artwork separately. Spotify imports metadata, not audio or cover files.
+- Plex imports selected albums, track identifiers and available original artwork (up to 50 per batch). Spotify imports metadata, not audio or cover files.
 - Dense fact sheets that do not fit at the minimum font size are refused with a named error.
 - PT/EN UI is available; some device/API diagnostic messages remain in English.
 - No public release, live hardware compatibility certification or end-to-end provider validation is implied by passing unit tests.

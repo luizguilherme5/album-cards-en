@@ -205,3 +205,32 @@ test('fact sheets embed fonts for Korean and Japanese instead of missing glyphs'
   const result = await PDFDocument.load(await makePdf([korean, japanese], 'back', '/unused'));
   assert.equal(result.getPageCount(), 1);
 });
+
+test('Plex decodes international titles and never forwards artwork tokens to another host', async () => {
+  const { Plex } = await import('../server/plex.js');
+  const s = await store();
+  s.data.config.plexUrl = 'http://plex.example:32400';
+  s.data.config.plexToken = 'test-token';
+  const originalFetch = globalThis.fetch;
+  const calls: string[] = [];
+  globalThis.fetch = (async (url: any) => {
+    const pathname = new URL(String(url)).pathname;
+    calls.push(String(url));
+    return new Response(
+      pathname === '/library/sections'
+        ? '<MediaContainer><Directory key="1" type="artist" /></MediaContainer>'
+        : pathname.endsWith('/all')
+          ? '<MediaContainer><Directory ratingKey="12" title="In&#233;dito" parentTitle="Jo&#227;o" /></MediaContainer>'
+          : '<MediaContainer><Directory thumb="https://elsewhere.example/private.jpg" /></MediaContainer>',
+    );
+  }) as typeof fetch;
+  try {
+    const plex = new Plex(s);
+    assert.equal((await plex.albums())[0].title, 'Inédito');
+    await assert.rejects(plex.cover('12', 'plex-12'), /Invalid Plex artwork path/);
+    assert(calls.every((u) => new URL(u).hostname === 'plex.example'));
+    assert(calls.every((u) => !u.includes('test-token')));
+  } finally {
+    globalThis.fetch = originalFetch;
+  }
+});

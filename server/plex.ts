@@ -1,7 +1,9 @@
 import { XMLParser } from 'fast-xml-parser';
 import type { Store } from './store.js';
+import { saveImage } from './library.js';
 const parser = new XMLParser({
   ignoreAttributes: false,
+  htmlEntities: true,
   attributeNamePrefix: '',
   parseAttributeValue: false,
 });
@@ -26,6 +28,16 @@ export class Plex {
     if (!response.ok) throw new Error(`Plex/Caldera: HTTP ${response.status}`);
     return parser.parse(await response.text());
   }
+  async players() {
+    const result = await this.request(this.store.data.config.plexUrl, '/clients');
+    return array(result.MediaContainer?.Server)
+      .filter((p) => p.product === 'Caldera Music')
+      .map((p) => ({
+        name: p.name,
+        id: p.machineIdentifier,
+        url: `http://${p.address.includes(':') ? `[${p.address}]` : p.address}:${p.port}`,
+      }));
+  }
   async albums() {
     const base = this.store.data.config.plexUrl;
     const sections = array(
@@ -46,6 +58,40 @@ export class Plex {
         });
     }
     return albums;
+  }
+  // Fetch artwork from the configured server only; the token never reaches image URLs.
+  async cover(key: string, id: string) {
+    if (!/^\d+$/.test(key)) throw new Error('Invalid Plex album key.');
+    const result = await this.request(this.store.data.config.plexUrl, `/library/metadata/${key}`);
+    const thumb = array(result.MediaContainer?.Directory)[0]?.thumb;
+    if (!thumb) return undefined;
+    const base = new URL(this.store.data.config.plexUrl);
+    const url = new URL(thumb, base);
+    if (url.origin !== base.origin || !url.pathname.startsWith('/library/metadata/'))
+      throw new Error('Invalid Plex artwork path.');
+    const response = await fetch(url, {
+      signal: AbortSignal.timeout(15000),
+      redirect: 'error',
+      headers: { 'X-Plex-Token': this.store.data.config.plexToken },
+    });
+    if (!response.ok || !response.headers.get('content-type')?.startsWith('image/'))
+      throw new Error('Plex artwork unavailable.');
+    const chunks: Uint8Array[] = [];
+    let size = 0;
+    const reader = response.body?.getReader();
+    if (!reader) throw new Error('Empty artwork.');
+    try {
+      while (true) {
+        const { done, value } = await reader.read();
+        if (done) break;
+        size += value.length;
+        if (size > 16_000_000) throw new Error('Artwork exceeds 16 MB.');
+        chunks.push(value);
+      }
+    } finally {
+      await reader.cancel();
+    }
+    return saveImage(this.store, Buffer.concat(chunks), id, 'original');
   }
   async tracks(key: string) {
     const result = await this.request(

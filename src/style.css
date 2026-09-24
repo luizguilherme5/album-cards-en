@@ -744,3 +744,19 @@ footer span {
   max-width: min(600px, 94vw);
   box-shadow: 0 8px 30px #0002;
 }
+
+.plex-catalog {
+  max-height: 42vh;
+  overflow: auto;
+  margin: 16px 0;
+  border-block: 1px solid #d9d4c8;
+}
+.plex-catalog .check {
+  padding: 12px;
+  border-bottom: 1px solid #e6e0d4;
+}
+.plex-catalog small {
+  display: block;
+  color: #666;
+  margin-top: 3px;
+}

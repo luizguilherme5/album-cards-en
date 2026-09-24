@@ -99,7 +99,10 @@ app.post('/api/albums/:id/image', async (req, res) => {
   const album = store.data.albums.find((a) => a.id === req.params.id);
   if (!album) return res.sendStatus(404);
   const input = z
-    .object({ kind: z.enum(['original', 'vertical']), data: z.string().startsWith('data:image/') })
+    .object({
+      kind: z.enum(['original', 'vertical', 'artSource']),
+      data: z.string().startsWith('data:image/'),
+    })
     .parse(req.body);
   const encoded = input.data.split(',')[1];
   if (!encoded) throw new Error('Missing image data.');
@@ -224,25 +227,54 @@ app.post('/api/spotify/import', async (req, res) => {
   await store.save();
   res.json({ ok: true });
 });
-app.post('/api/plex/import', async (_req, res) => {
-  const albums = await plex.albums();
-  for (const album of albums) {
-    const tracks = await plex.tracks(album.plexKey);
-    const parsed = albumSchema.parse({
-      ...album,
-      tracks: tracks.map((t) => ({
-        title: t.title,
-        disc: Number(t.parentIndex || 1),
-        number: Number(t.index),
-        seconds: Number(t.duration || 0) / 1000,
-      })),
-    });
-    const old = store.data.albums.find((a) => a.id === parsed.id);
-    if (old) Object.assign(old, parsed);
-    else store.data.albums.push(parsed);
+app.get('/api/plex/players', async (_req, res) => res.json(await plex.players()));
+app.get('/api/plex/albums', async (_req, res) => res.json(await plex.albums()));
+let importingPlex = false;
+app.post('/api/plex/import', async (req, res) => {
+  const input = z
+    .object({ keys: z.array(z.string().regex(/^\d+$/)).min(1).max(50) })
+    .parse(req.body);
+  if (importingPlex) return res.status(409).json({ error: 'A Plex import is already running.' });
+  importingPlex = true;
+  const warnings: string[] = [];
+  let imported = 0;
+  try {
+    const catalog = await plex.albums();
+    const selected = catalog.filter((a) => input.keys.includes(a.plexKey));
+    if (selected.length !== new Set(input.keys).size) throw new Error('Album not found in Plex.');
+    for (const album of selected) {
+      try {
+        const tracks = await plex.tracks(album.plexKey);
+        const parsed = albumSchema.parse({
+          ...album,
+          tracks: tracks.map((t) => ({
+            title: t.title,
+            disc: Number(t.parentIndex || 1),
+            number: Number(t.index),
+            seconds: Number(t.duration || 0) / 1000,
+          })),
+        });
+        const old = store.data.albums.find((a) => a.id === parsed.id);
+        const next = { ...old, ...parsed };
+        if (!next.original) {
+          try {
+            next.original = await plex.cover(album.plexKey, album.id);
+          } catch {
+            warnings.push(`${album.title}: artwork unavailable`);
+          }
+        }
+        if (old) Object.assign(old, next);
+        else store.data.albums.push(next);
+        await store.save();
+        imported++;
+      } catch {
+        warnings.push(`${album.title}: could not import metadata`);
+      }
+    }
+    res.json({ albums: imported, warnings });
+  } finally {
+    importingPlex = false;
   }
-  await store.save();
-  res.json({ albums: albums.length });
 });
 let printing = false;
 app.post('/api/pdf', async (req, res) => {

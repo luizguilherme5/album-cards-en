@@ -10,11 +10,13 @@ type Props = {
 };
 export function CropEditor({ album, en, close, saved, report }: Props) {
   const [source, setSource] = useState(
-    album.original
-      ? '/images/' + album.original
+    album.artSource
+      ? '/images/' + album.artSource
       : album.vertical
         ? '/images/' + album.vertical
-        : '',
+        : album.original
+          ? '/images/' + album.original
+          : '',
   );
   const [image, setImage] = useState<HTMLImageElement>();
   const [upload, setUpload] = useState('');
@@ -64,7 +66,7 @@ export function CropEditor({ album, en, close, saved, report }: Props) {
     if (!canvas.current || !image) return;
     setBusy(true);
     try {
-      if (upload) await api(`/albums/${album.id}/image`, { kind: 'original', data: upload });
+      if (upload) await api(`/albums/${album.id}/image`, { kind: 'artSource', data: upload });
       await api(`/albums/${album.id}/image`, {
         kind: 'vertical',
         data: canvas.current.toDataURL('image/png'),
