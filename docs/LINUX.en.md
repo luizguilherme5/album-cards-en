@@ -118,3 +118,7 @@ bash deployment/dev.sh restart
 To update: stop with `down`, privately back up `data/`, update code, run `npm ci`, `npm run build`, `setup`, then `up`. Never delete `data/`. To roll back from a migration, stop this service and restore the previous service/data. Do not leave two applications handling the same reader.
 
 **Private files:** `data/` contains tokens, and `~/.local/share/album-cards-runtime/spotify-cache/` contains receiver credentials. Publish neither. Hardware licensing is separate from the software; see `hardware/README.md`.
+
+### Spotify volume
+
+The receiver starts at 20% only on first setup. It then restores the last volume chosen in Spotify, including after switching between Plex and Spotify or restarting. The volume file lives in the receiver’s private cache; keep that folder to preserve your preference. The speaker’s physical volume remains separate.

@@ -118,3 +118,7 @@ bash deployment/dev.sh restart
 Para atualizar: pare com `down`, faça backup privado de `data/`, atualize o código, rode `npm ci`, `npm run build`, `setup` e `up`. Não apague `data/`. Para reverter a migração de outro player, pare este serviço e restaure o serviço e dados anteriores; nunca deixe dois programas processando o mesmo leitor ao mesmo tempo.
 
 **Privado:** `data/` contém tokens; `~/.local/share/album-cards-runtime/spotify-cache/` contém o login do receptor. Não publique nenhum deles. Os modelos 3D têm licença separada do software; consulte `hardware/README.md`.
+
+### Volume do Spotify
+
+O receptor começa em 20% apenas na primeira configuração. Depois, restaura o último volume ajustado no Spotify, inclusive ao alternar entre Plex e Spotify ou reiniciar. O arquivo de volume fica no cache privado do receptor; não apague essa pasta se quiser preservar a preferência. O volume físico da caixa continua independente.

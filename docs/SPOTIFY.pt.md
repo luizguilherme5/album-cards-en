@@ -105,3 +105,7 @@ Esta primeira versão aceita conexões locais. Para um Raspberry Pi ou servidor,
 ## Player Linux sempre ligado
 
 O leitor permanece no Linux. Configure o receptor Raspotify e o início automático em [LINUX.pt.md](LINUX.pt.md). Escolha o serviço por álbum em Dados. O mapa fica em data/ no player; não há transferência de mapas para celular nem escrita de URLs no cartão. O celular pode ser usado como controle Spotify Connect.
+
+## Quais cadastros são necessários?
+
+Para tocar cartões automaticamente, esta aplicação precisa de um app próprio no Developer Dashboard (Client ID), autorização OAuth e Spotify Premium. Use sua conta Spotify no Dashboard; PKCE não precisa de Client Secret. O receptor Raspotify sozinho, escolhido pelo Spotify do celular, não exige criar seu próprio app, mas também exige Premium. O modo Plex não usa esses cadastros do Spotify. Fontes: [Playback API](https://developer.spotify.com/documentation/web-api/reference/start-a-users-playback), [Raspotify](https://github.com/dtcooper/raspotify).

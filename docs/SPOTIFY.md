@@ -105,3 +105,7 @@ This release accepts loopback connections. For a Raspberry Pi or server, run the
 ## Always-on Linux player
 
 The reader stays on Linux. Set up the Raspotify receiver and autostart with [LINUX.en.md](LINUX.en.md). Choose each album’s player in Details. Mappings stay in data/ on the player; there is no phone-map transfer or URL written into the card. A phone can act as a Spotify Connect remote.
+
+## Which accounts and registrations are needed?
+
+Automatic card playback in this app needs your own Developer Dashboard app (Client ID), OAuth authorization and Spotify Premium. Use your Spotify account in the Dashboard; PKCE needs no Client Secret. Raspotify alone, selected from Spotify on your phone, needs no custom developer app but still requires Premium. Plex mode uses none of these Spotify registrations. Sources: [Playback API](https://developer.spotify.com/documentation/web-api/reference/start-a-users-playback), [Raspotify](https://github.com/dtcooper/raspotify).
