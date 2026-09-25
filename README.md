@@ -62,4 +62,4 @@ Build before starting production mode. Do not run development and production ser
 
 Read [architecture](docs/ARCHITECTURE.md), [album format](docs/ALBUMS.md), [validation and limitations](docs/VALIDATION.md), and [security](SECURITY.md).
 
-Code is MIT licensed. Bundled fonts retain their licenses in `public/fonts/`. Any models under `hardware/` have separate licensing; read their documentation before redistribution.
+Code is MIT licensed. Bundled fonts retain their licenses in `public/fonts/`. The V3 models in `hardware/` are by Luiz Guilherme, licensed under CC BY 4.0 for sharing and adaptation with attribution.

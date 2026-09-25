@@ -2,7 +2,7 @@
 
 [Download the ZIP](RFID-V3-para-Cura.zip) · [Portuguese printing instructions](RFID-V3-para-Cura/LEIA-ME.md) · [Orientation image](RFID-V3-para-Cura/orientacao-das-pecas.png)
 
-The project owner supplied this V3 package. It includes three individual STL parts, an arranged STL, an arranged 3MF without printer settings, an orientation image and export verification reports. The geometry files match the supplied SHA-256 checksums exactly. The only sanitized source field is the local Blender path in `exportacao.json`; the distributed ZIP was rebuilt from these files.
+The project owner supplied this V3 package. It includes three individual STL parts, an arranged STL, an arranged 3MF without printer settings, an orientation image and export verification reports. The geometry files match the supplied SHA-256 checksums exactly. Local source paths and image metadata have been removed; the distributed ZIP was rebuilt from these files without changing the geometry.
 
 | Part | Size X × Y × Z (mm) |
 |---|---|
@@ -16,4 +16,4 @@ The supplied notes specify Ender 3 S1, PLA, a 0.6 mm nozzle and 0.2 mm layers. T
 
 ## Attribution and license
 
-Supplied by the project owner for this private repository. The archive does not declare a hardware license; the software MIT license does **not** automatically apply to these models. Confirm authorship and the intended hardware license before public distribution. The editable Blender source is not included in this package.
+Created by **Luiz Guilherme (@luizguilherme5)**. The enclosure models, orientation render and hardware documentation are licensed under **[CC BY 4.0](RFID-V3-para-Cura/LICENSE.md)**. You may share and adapt them, including commercially, with attribution, a license link and an indication of changes. Software remains MIT-licensed. The editable Blender source is not included.
