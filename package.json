@@ -4,7 +4,7 @@
   "private": true,
   "type": "module",
   "engines": {
-    "node": ">=22.12"
+    "node": ">=22.13"
   },
   "scripts": {
     "dev": "node scripts/dev.mjs",
@@ -14,7 +14,8 @@
     "test": "node --import tsx --test tests/*.test.ts",
     "typecheck": "tsc --noEmit",
     "format": "prettier --write src server shared tests scripts *.json *.ts",
-    "format:check": "prettier --check src server shared tests scripts *.json *.ts"
+    "format:check": "prettier --check src server shared tests scripts *.json *.ts",
+    "service": "bash deployment/dev.sh"
   },
   "dependencies": {
     "@pdf-lib/fontkit": "^1.1.1",

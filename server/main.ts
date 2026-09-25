@@ -9,6 +9,8 @@ import { Store } from './store.js';
 import { browse, scan, saveImage } from './library.js';
 import { Spotify } from './spotify.js';
 import { Plex } from './plex.js';
+import { Playback } from './playback.js';
+import { handoffAudio } from './audio.js';
 import { Reader, discoverReaders } from './reader.js';
 import { makePdf } from './pdf.js';
 import { albumSchema, configSchema } from '../shared/schema.js';
@@ -24,19 +26,18 @@ if (!['127.0.0.1', '::1', 'localhost'].includes(host))
 const store = await new Store(path.resolve(process.env.DATA_DIR || 'data')).open();
 const spotify = new Spotify(store, origin + '/auth/spotify/callback');
 const plex = new Plex(store);
-const play = async (id: string, position: number) => {
-  const album = store.data.albums.find((a) => a.id === id);
-  if (!album) throw new Error('Album not found.');
-  if (store.data.config.provider === 'spotify') {
-    if (!album.spotifyId) throw new Error('Add the Spotify album ID in album details.');
-    await spotify.play(album.spotifyId, position);
-  } else {
-    if (!album.plexKey) throw new Error('Add the Plex album rating key in album details.');
-    await plex.play(album.plexKey, position);
-  }
-};
+const playback = new Playback(
+  store,
+  spotify,
+  plex,
+  process.env.ALBUM_CARDS_AUDIO_HANDOFF === '1' ? handoffAudio : undefined,
+);
+const play = (id: string, position: number) => playback.play(id, position);
 const reader = new Reader(store, play);
-setInterval(() => void reader.reconnect(), 2000).unref();
+setInterval(
+  () => void reader.reconnect().catch((error) => console.error('Reader reconnect:', error.message)),
+  2000,
+).unref();
 const app = express();
 const server = createServer(app);
 const csrf = randomBytes(24).toString('hex');
@@ -120,8 +121,18 @@ app.use(
 );
 app.post('/api/config', async (req, res) => {
   const input = configSchema.partial().parse(req.body);
-  if (input.readerPath && !(await discoverReaders()).some((r) => r.path === input.readerPath))
-    throw new Error('Choose an input device from the list.');
+  if (input.readerPath !== undefined) {
+    const device = (await discoverReaders()).find((r) => r.path === input.readerPath);
+    if (device) {
+      input.readerVendorId = device.vendorId;
+      input.readerProductId = device.productId;
+      input.readerName = device.name;
+    } else if (input.readerPath && input.readerPath !== store.data.config.readerPath) {
+      throw new Error('Choose an input device from the list.');
+    } else if (!input.readerPath) {
+      input.readerVendorId = input.readerProductId = input.readerName = '';
+    }
+  }
   if (
     input.spotifyClientId !== undefined &&
     input.spotifyClientId !== store.data.config.spotifyClientId
@@ -210,6 +221,7 @@ app.post('/api/spotify/import', async (req, res) => {
   const album = albumSchema.parse({
     id: 'spotify-' + id,
     spotifyId: id,
+    playbackProvider: 'spotify',
     title: remote.name,
     artist: remote.artists.map((a: any) => a.name).join(', '),
     year: remote.release_date?.slice(0, 4) || '',
@@ -247,6 +259,7 @@ app.post('/api/plex/import', async (req, res) => {
         const tracks = await plex.tracks(album.plexKey);
         const parsed = albumSchema.parse({
           ...album,
+          playbackProvider: 'plex',
           tracks: tracks.map((t) => ({
             title: t.title,
             disc: Number(t.parentIndex || 1),

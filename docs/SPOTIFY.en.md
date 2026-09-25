@@ -101,3 +101,7 @@ Revoke access through [your Spotify account's Apps page](https://www.spotify.com
 ## Running on another computer
 
 This release accepts loopback connections. For a Raspberry Pi or server, run the app there and create an SSH tunnel: `ssh -L 3850:127.0.0.1:3850 user@your-server`. Open `http://127.0.0.1:3850` on the browser computer; the OAuth callback travels through the same tunnel. Remote HTTPS hosting requires additional deployment and access controls and is not automatically provided.
+
+## Always-on Linux player
+
+The reader stays on Linux. Set up the Raspotify receiver and autostart with [LINUX.en.md](LINUX.en.md). Choose each album’s player in Details. Mappings stay in data/ on the player; there is no phone-map transfer or URL written into the card. A phone can act as a Spotify Connect remote.

@@ -1,6 +1,6 @@
 import { createReadStream, type ReadStream } from 'node:fs';
-import { readdir, readFile } from 'node:fs/promises';
-import type { ReaderState } from '../shared/schema.js';
+import { readdir, readFile, realpath, stat } from 'node:fs/promises';
+import type { Config, ReaderState } from '../shared/schema.js';
 import type { Store } from './store.js';
 
 // USB keyboard readers send a sequence of key presses followed by Enter.
@@ -8,36 +8,113 @@ import type { Store } from './store.js';
 export class EvdevDecoder {
   private bytes = Buffer.alloc(0);
   private digits = '';
+  private lastKey = 0;
+  private invalid = false;
+  private dropped = false;
   constructor(private scanned: (id: string) => void) {}
   push(chunk: Buffer) {
     this.bytes = Buffer.concat([this.bytes, chunk]);
     while (this.bytes.length >= 24) {
       const event = this.bytes.subarray(0, 24);
       this.bytes = this.bytes.subarray(24);
-      if (event.readUInt16LE(16) !== 1 || event.readInt32LE(20) !== 1) continue;
+      const type = event.readUInt16LE(16);
       const code = event.readUInt16LE(18);
-      if (code >= 2 && code <= 11) this.digits += String((code - 1) % 10);
-      if (this.digits.length > 64) this.digits = '';
-      if (code === 28 || code === 96) {
-        if (this.digits) this.scanned(this.digits);
+      if (type === 0 && code === 3) {
+        this.dropped = true;
         this.digits = '';
+        this.invalid = true;
       }
+      if (this.dropped) {
+        if (type === 0 && code === 0) this.dropped = false;
+        continue;
+      }
+      if (type !== 1 || event.readInt32LE(20) !== 1) continue;
+      if (Date.now() - this.lastKey > 1000) {
+        this.digits = '';
+        this.invalid = false;
+      }
+      this.lastKey = Date.now();
+      if (code === 28 || code === 96) {
+        if (this.digits && !this.invalid) this.scanned(this.digits);
+        this.digits = '';
+        this.invalid = false;
+        continue;
+      }
+      const keypad: Record<number, string> = {
+        82: '0',
+        79: '1',
+        80: '2',
+        81: '3',
+        75: '4',
+        76: '5',
+        77: '6',
+        71: '7',
+        72: '8',
+        73: '9',
+      };
+      const digit = code >= 2 && code <= 11 ? String((code - 1) % 10) : keypad[code];
+      if (digit !== undefined) this.digits += digit;
+      else if (![42, 54, 69].includes(code)) this.invalid = true;
+      if (this.digits.length > 64) this.invalid = true;
     }
   }
 }
-export async function discoverReaders() {
+export type InputDevice = { path: string; name: string; vendorId: string; productId: string };
+export function selectReader(devices: InputDevice[], config: Config) {
+  const identity = Boolean(config.readerVendorId && config.readerProductId);
+  const matches = devices.filter(
+    (d) =>
+      !identity ||
+      (d.vendorId === config.readerVendorId &&
+        d.productId === config.readerProductId &&
+        (!config.readerName || d.name === config.readerName)),
+  );
+  const exact = matches.find((d) => d.path === config.readerPath);
+  return exact || (identity && matches.length === 1 ? matches[0] : undefined);
+}
+export async function discoverReaders(): Promise<InputDevice[]> {
   if (process.platform !== 'linux') return [];
-  const paths: { path: string; name: string }[] = [];
+  const paths: InputDevice[] = [];
+  const aliases = await readdir('/dev/input/by-id').catch(() => []);
+  const aliasTargets = await Promise.all(
+    aliases
+      .filter((n) => n.endsWith('-event-kbd'))
+      .map(async (n) => ({
+        path: '/dev/input/by-id/' + n,
+        target: await realpath('/dev/input/by-id/' + n).catch(() => ''),
+      })),
+  );
   for (const name of await readdir('/sys/class/input').catch(() => [])) {
     if (!/^event\d+$/.test(name)) continue;
+    const capabilities = await readFile(
+      `/sys/class/input/${name}/device/capabilities/key`,
+      'utf8',
+    ).catch(() => '0');
+    const keys = capabilities
+      .trim()
+      .split(/\s+/)
+      .reduce((bits, word) => (bits << 64n) | BigInt('0x' + word), 0n);
+    // Composite USB readers may expose a second consumer-control interface.
+    // Only list interfaces capable of sending a number and Enter.
+    if (!(keys & ((1n << 28n) | (1n << 96n))) || !(keys & ((1n << 2n) | (1n << 79n)))) continue;
     const label = await readFile(`/sys/class/input/${name}/device/name`, 'utf8').catch(
       () => 'Unknown',
     );
-    paths.push({ path: `/dev/input/${name}`, name: label.trim() });
+    const [vendorId, productId] = await Promise.all(
+      ['vendor', 'product'].map((id) =>
+        readFile(`/sys/class/input/${name}/device/id/${id}`, 'utf8')
+          .then((v) => v.trim())
+          .catch(() => ''),
+      ),
+    );
+    paths.push({
+      path:
+        aliasTargets.find((a) => a.target === `/dev/input/${name}`)?.path || `/dev/input/${name}`,
+      name: label.trim(),
+      vendorId,
+      productId,
+    });
   }
-  const aliases = await readdir('/dev/input/by-id').catch(() => []);
-  for (const name of aliases.filter((n) => n.endsWith('-event-kbd')))
-    paths.unshift({ path: '/dev/input/by-id/' + name, name });
   return paths;
 }
 export class Reader {
@@ -52,6 +129,7 @@ export class Reader {
   };
   private stream?: ReadStream;
   private device = '';
+  private identity = '';
   private lastScan = { id: '', time: 0 };
   private assignmentUntil = 0;
   private assigned = new Set<string>();
@@ -117,27 +195,34 @@ export class Reader {
     }
   }
   async reconnect() {
-    const configured = this.store.data.config.readerPath;
-    if (this.stream && this.device === configured) return;
-    this.stream?.destroy();
-    this.stream = undefined;
-    this.device = configured;
+    const config = this.store.data.config;
+    const configured = config.readerPath;
     if (!configured || process.platform !== 'linux') {
       this.state.source = 'keyboard';
       this.state.connected = false;
+      this.stream?.destroy();
+      this.stream = undefined;
       return;
     }
     this.state.source = 'linux';
     const devices = await discoverReaders();
-    if (!devices.some((d) => d.path === configured)) {
+    const selected = selectReader(devices, config);
+    const info = selected && (await stat(selected.path).catch(() => undefined));
+    const identity = info ? `${info.dev}:${info.ino}:${info.rdev}` : '';
+    if (this.stream && selected?.path === this.device && identity === this.identity) return;
+    this.stream?.destroy();
+    this.stream = undefined;
+    if (!selected || !info) {
       this.state.connected = false;
       this.state.message = 'USB reader disconnected';
       return;
     }
+    this.device = selected.path;
+    this.identity = identity;
     const decoder = new EvdevDecoder((id) => {
       void this.scan(id).catch(() => {});
     });
-    const stream = createReadStream(configured);
+    const stream = createReadStream(selected.path);
     this.stream = stream;
     stream.on('open', () => {
       this.state.connected = true;

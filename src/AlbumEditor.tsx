@@ -100,6 +100,24 @@ export function AlbumEditor({
               {field('label', t('Gravadora', 'Label'))}
               {field('spotifyId', 'Spotify album ID')}
               {field('plexKey', 'Plex rating key')}
+              <label>
+                {t('Reproduzir este álbum em', 'Play this album with')}
+                <select
+                  value={draft.playbackProvider || 'auto'}
+                  onChange={(e) =>
+                    setDraft({
+                      ...draft,
+                      playbackProvider: e.target.value as Album['playbackProvider'],
+                    })
+                  }
+                >
+                  <option value="auto">
+                    {t('Automático pelo serviço vinculado', 'Automatic from linked service')}
+                  </option>
+                  <option value="plex">Plex / Caldera</option>
+                  <option value="spotify">Spotify</option>
+                </select>
+              </label>
             </div>
             <h3>{t('Lista de faixas', 'Track list')}</h3>
             <p>

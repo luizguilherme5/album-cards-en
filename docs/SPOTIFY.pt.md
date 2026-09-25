@@ -101,3 +101,7 @@ Você pode revogar o acesso em [Aplicativos da sua conta Spotify](https://www.sp
 ## Instalação em outro computador
 
 Esta primeira versão aceita conexões locais. Para um Raspberry Pi ou servidor, use um túnel SSH: `ssh -L 3850:127.0.0.1:3850 usuario@seu-servidor`, com a aplicação já rodando nele. Abra `http://127.0.0.1:3850` no computador do navegador; o retorno OAuth percorre o mesmo túnel. Um domínio HTTPS exige implantação e proteção adicionais, não fornecidas automaticamente nesta versão.
+
+## Player Linux sempre ligado
+
+O leitor permanece no Linux. Configure o receptor Raspotify e o início automático em [LINUX.pt.md](LINUX.pt.md). Escolha o serviço por álbum em Dados. O mapa fica em data/ no player; não há transferência de mapas para celular nem escrita de URLs no cartão. O celular pode ser usado como controle Spotify Connect.

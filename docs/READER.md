@@ -16,9 +16,9 @@ Em Configurações, clique Detectar dispositivos Linux. Selecione o leitor pelo 
 
 Detect Linux devices in Settings, choose the correct name, prefer a stable `by-id` path, and save. `eventN` paths can change after reconnecting. Browser scan submission is disabled while native input is selected to avoid duplicate playback.
 
-O adaptador atual suporta eventos `input_event` de 24 bytes em Linux 64-bit e teclas numéricas da fileira superior. Leitores com códigos hexadecimais digitados como letras, modo serial, PC/SC ou kernels 32-bit precisam de outro adaptador. Não confunda LED verde com confirmação de protocolo compatível.
+O adaptador atual suporta eventos `input_event` de 24 bytes em Linux 64-bit e teclas numéricas da fileira superior e do teclado numérico. Leitores com códigos hexadecimais digitados como letras, modo serial, PC/SC ou kernels 32-bit precisam de outro adaptador. Não confunda LED verde com confirmação de protocolo compatível.
 
-The native adapter currently supports 24-byte Linux 64-bit input events and top-row numeric keys. Serial, PC/SC, 32-bit kernels and readers emitting hexadecimal letters need another adapter. A green LED does not prove protocol compatibility.
+The native adapter currently supports 24-byte Linux 64-bit input events and top-row and numeric-keypad digits. Serial, PC/SC, 32-bit kernels and readers emitting hexadecimal letters need another adapter. A green LED does not prove protocol compatibility.
 
 ### Permissões / Permissions
 
@@ -31,3 +31,21 @@ If access is denied, identify your reader using `lsusb` and `udevadm info`. Use 
 Selecione até 50 álbuns, abra Cartões e escolha Atribuir selecionados. A fila é alfabética. Por padrão, cartões existentes não são sobrescritos. O checkbox permite substituição explícita. O mesmo cartão não avança duas posições na mesma sessão. A sessão expira depois de cinco minutos e não volta automaticamente para reprodução ao terminar.
 
 Select up to 50 albums and start assignment. Albums are assigned alphabetically. Existing cards require the overwrite checkbox. The same card cannot fill two positions in one session. Sessions expire after five minutes and never automatically switch to playback when the queue ends.
+
+## Identidade e reconexão / Identity and reconnect
+
+Ao salvar o leitor, o app guarda fornecedor, produto e nome USB. Se `eventN` mudar, ele reconecta ao único dispositivo correspondente; não segue o número antigo para um teclado diferente. Dois candidatos iguais não são escolhidos automaticamente.
+
+Saving the reader records its USB vendor, product and name. If `eventN` changes, the app reconnects to the unique match rather than following the old number to a different keyboard. Ambiguous matches require selection.
+
+Exemplo de regra para **o leitor usado no projeto**, VID/PID `1a86:2366` (confira o seu primeiro). Substitua `SEU_USUARIO` antes de salvar em `/etc/udev/rules.d/70-album-cards.rules`:
+
+```text
+SUBSYSTEM=="input", KERNEL=="event*", ATTRS{idVendor}=="1a86", ATTRS{idProduct}=="2366", OWNER="SEU_USUARIO", MODE="0400"
+```
+
+```sh
+sudo udevadm control --reload-rules
+```
+
+Reconecte o leitor. Reconnect the reader. Replace `SEU_USUARIO` with your Linux account; use this VID/PID only if it matches your device.

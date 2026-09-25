@@ -58,6 +58,7 @@ export async function scan(directory: string, store: Store) {
             artist,
             year: String(m.year || ''),
             label: m.label?.join(', ') || '',
+            playbackProvider: previous?.playbackProvider || 'auto',
             tracks: [],
             source: root,
           };

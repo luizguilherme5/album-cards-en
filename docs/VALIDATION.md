@@ -14,12 +14,15 @@
 - Real Plex catalog listing, selective import of six albums with tracks and original covers, and Caldera discovery. Private configuration stays in ignored local data.
 - Plex numeric XML entities decode correctly; remote artwork cannot send credentials to another host.
 - Browser flow: create album, edit metadata, upload artwork, crop, save, and open PDF preview.
+- Spotify Premium OAuth completed with PKCE. The account connected, the active Spotify Web Player appeared as a Connect device, the app imported Fresno's *sua alegria foi cancelada* with 10 tracks, and the app's Play button started the album at its first track.
+
+- Orange Pi 3B: Node 24 ARM64, dependency installation and production build completed on Armbian/Debian 12. The official Raspotify receiver appeared in Spotify Connect and the user selected it; cached receiver authentication was verified. USB audio and a physical card scan remain pending reconnection of the hardware.
 
 ## Needs your setup / Depende do seu setup
 
-- Real OAuth consent and playback: no Spotify developer app or connected Premium account was supplied.
+- Physical card association in the new native Linux reader remains pending. Phone-side playback and exported phone maps are no longer the supported workflow.
 - Actual Plex/Caldera playback triggered by a physical card in the new app remains to be verified.
-- Physical USB hotplug on Linux and the exact hardware's event format.
+- Physical USB hotplug on Linux and the exact hardware's event format. The reader did type a card ID followed by Enter on the user's Android and iPhone in separate hands-on tests.
 - Real print measurement and duplex alignment.
 
 ## Explicit release limits / Limites explícitos

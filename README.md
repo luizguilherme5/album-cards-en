@@ -6,10 +6,10 @@
 
 ## Start here
 
-Install **Node.js 22.12 or newer**, then run inside this repository:
+Install **Node.js 24 LTS**, then run inside this repository:
 
 ```sh
-npm install
+npm ci
 npm run dev
 ```
 
@@ -26,12 +26,18 @@ Local audio is not uploaded to Spotify. Enter the correct **Spotify album ID** i
 
 ## Readers
 
-- **Mac, Windows, or Android browser:** a USB keyboard reader that types an ID followed by Enter. Keep Cards and the input field focused. The UI confirms scans, not USB enumeration on these platforms.
+- **Mac or Windows, with the browser on the same computer:** a USB keyboard reader that types an ID followed by Enter. Keep Cards and the input field focused. The UI confirms scans, not USB enumeration on these platforms.
 - **64-bit Linux / Raspberry Pi / Orange Pi:** select an input device in Settings. Native reading continues with the browser closed while Node is running. Prefer stable `/dev/input/by-id/…` paths.
 - Grant permissions only to your identified reader; see [reader setup](docs/READER.md). Do not run the entire app as root.
 - No writing to the card memory is necessary: the application maps its ID to an album.
 - Keyboard readers usually cannot report removal, so removing a card **does not pause**. Another card starts its album; repeating the same card picks another registered track position, excluding the last position started by the app.
 - Assignment never starts playback. Sessions expire after five minutes and do not automatically return to playback after completion. One card cannot consume two positions in the same session.
+
+## Dedicated player, no browser left open
+
+The recommended setup is 64-bit Linux: Raspberry Pi, Orange Pi or PC. The reader stays connected there. Choose **Plex/Caldera** for your own collection or **Spotify** for Premium streaming without a music server. Albums can use different providers.
+
+Follow [Linux installation and autostart](docs/LINUX.en.md). After setup, `bash deployment/dev.sh enable plex` or `bash deployment/dev.sh enable spotify` starts the app and player at boot. For both on one USB output, follow the audio handoff section.
 
 ## Printing
 

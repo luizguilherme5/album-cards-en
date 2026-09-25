@@ -57,8 +57,8 @@ export function Settings({
         <h2>{t('Onde vamos ouvir?', 'Where will you listen?')}</h2>
         <p>
           {t(
-            'Escolha o serviço que recebe os comandos dos cartões.',
-            'Choose the service that receives your card commands.',
+            'Padrão para álbuns vinculados aos dois serviços. Você também pode escolher o serviço na ficha de cada álbum.',
+            'Default for albums linked to both services. You can also choose a service in each album’s details.',
           )}
         </p>
         <div className="segmented">
@@ -81,8 +81,8 @@ export function Settings({
         <h2>Spotify</h2>
         <p>
           {t(
-            'Requer Premium e um dispositivo com Spotify aberto. Não precisa de Client Secret.',
-            'Requires Premium and an open Spotify device. No Client Secret needed.',
+            'Requer Premium e um receptor Spotify Connect: o Spotify no computador ou Raspotify no seu Pi. Não precisa de Client Secret.',
+            'Requires Premium and a Spotify Connect receiver: Spotify on your computer or Raspotify on your Pi. No Client Secret needed.',
           )}
         </p>
         {field('spotifyClientId', 'Client ID')}
@@ -131,7 +131,13 @@ export function Settings({
               {t('Dispositivo', 'Device')}
               <select
                 value={form.spotifyDeviceId}
-                onChange={(e) => setForm({ ...form, spotifyDeviceId: e.target.value })}
+                onChange={(e) =>
+                  setForm({
+                    ...form,
+                    spotifyDeviceId: e.target.value,
+                    spotifyDeviceName: devices.find((d) => d.id === e.target.value)?.name || '',
+                  })
+                }
               >
                 <option value="">{t('Selecione', 'Select')}</option>
                 {devices.map((d) => (

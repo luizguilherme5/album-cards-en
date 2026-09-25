@@ -6,19 +6,19 @@
 
 ## Comece aqui
 
-Instale **Node.js 22.12 ou mais recente**. Na pasta deste repositório:
+Instale **Node.js 24 LTS**. Na pasta deste repositório:
 
 ```sh
-npm install
+npm ci
 npm run dev
 ```
 
 Abra **http://127.0.0.1:3850**. Uma aplicação, uma porta, nenhum Python, banco externo ou container obrigatório. Em uma instalação comum, mantenha o terminal aberto e use Ctrl+C para parar. Onde houver um `dev.sh` de gerenciamento local, `npm run dev` delega a ele.
 
 1. **Coleção → Adicionar álbuns:** escolha uma pasta do computador que executa o aplicativo. Os arquivos não são alterados. A leitura extrai artista, álbum, faixas, duração, gravadora e capa quando esses dados existem nas tags.
-2. **Dados:** corrija informações no formulário e organize discos/faixas. A aba JSON e o botão Exportar permitem levar a ficha para outra instalação. Há um [exemplo fictício](examples/album.json).
+2. **Dados:** corrija informações no formulário e organize discos/faixas. A aba JSON e o botão Exportar permitem levar a ficha para outra instalação. Há um [exemplo fictício](../examples/album.json).
 3. **Clique na capa:** envie uma imagem, arraste, ajuste zoom e salve o recorte de **1080 × 1712 px**, na proporção **54 × 85,6 mm**. A origem fica separada da arte vertical.
-4. **Configurações:** conecte [Spotify](docs/SPOTIFY.md) ou configure [Plex/Caldera](docs/PLAYERS.md). Escolha um player antes de tentar tocar um cartão.
+4. **Configurações:** conecte [Spotify](SPOTIFY.md) ou configure [Plex/Caldera](PLAYERS.md). Escolha um player antes de tentar tocar um cartão.
 5. **Cartões:** selecione álbuns, habilite substituição se desejar, clique em Atribuir selecionados e apresente um cartão por álbum. A fila usa ordem alfabética. Depois mude para Reproduzir.
 6. **Impressão:** selecione até 50 álbuns e gere o PDF das capas ou das fichas. A prévia e o download usam o mesmo arquivo.
 
@@ -26,12 +26,18 @@ Uma pasta local não é enviada ao Spotify. Associe seu álbum ao **Spotify albu
 
 ## Leitores
 
-- **Mac, Windows e Android com navegador:** leitor USB que digita ID + Enter. Na aba Cartões, mantenha o campo de captura e a página em foco. A interface confirma uma leitura recebida; não afirma que um USB está conectado só porque o campo está aberto.
+- **Mac ou Windows, com navegador no mesmo computador:** leitor USB que digita ID + Enter. Na aba Cartões, mantenha o campo de captura e a página em foco. A interface confirma uma leitura recebida; não afirma que um USB está conectado só porque o campo está aberto.
 - **Linux 64-bit / Raspberry Pi / Orange Pi:** selecione o dispositivo em Configurações. A leitura nativa funciona sem manter o navegador aberto, enquanto o aplicativo Node estiver rodando. Prefira o caminho estável `/dev/input/by-id/…` quando disponível.
-- Conceda acesso somente ao leitor identificado. Veja [configuração do leitor](docs/READER.md). Não execute todo o aplicativo como root.
+- Conceda acesso somente ao leitor identificado. Veja [configuração do leitor](READER.md). Não execute todo o aplicativo como root.
 - Não é necessário gravar a memória do cartão: o aplicativo associa o ID a um álbum.
 - Leitores de teclado geralmente não notificam remoção. Remover o cartão **não pausa**. Outro cartão inicia seu álbum; repetir o mesmo cartão escolhe outra posição entre as faixas cadastradas, evitando a última posição iniciada pelo aplicativo.
 - Durante atribuição, as leituras não enviam comandos de reprodução. A sessão expira após cinco minutos; reinicie-a se necessário. O mesmo cartão não preenche duas posições na mesma sessão.
+
+## Player dedicado, sem navegador aberto
+
+O caminho recomendado é Linux de 64 bits: Raspberry Pi, Orange Pi ou PC. O leitor fica conectado nele. Escolha **Plex/Caldera** para sua coleção local ou **Spotify** para streaming com Premium, sem servidor de músicas. Cada álbum pode usar seu próprio serviço.
+
+Siga [instalação Linux e início automático](LINUX.pt.md). Depois de configurar, `bash deployment/dev.sh enable plex` ou `bash deployment/dev.sh enable spotify` deixa o aplicativo e o player iniciarem no boot. Para ambos na mesma saída USB, veja a troca de áudio nesse guia.
 
 ## Impressão
 
@@ -54,6 +60,6 @@ npm start
 
 `npm start` serve a compilação do frontend usando o mesmo servidor Node; execute `npm run build` primeiro. Não inicie `npm start` e `npm run dev` juntos na mesma porta. `PORT`, `DATA_DIR`, `DEFAULT_LOCALE` e `APP_ORIGIN` podem ser definidos no ambiente. O projeto não carrega `.env` automaticamente.
 
-Leia [arquitetura](docs/ARCHITECTURE.md), [formato dos álbuns](docs/ALBUMS.md), [limites e validação](docs/VALIDATION.md) e [segurança](SECURITY.md).
+Leia [arquitetura](ARCHITECTURE.md), [formato dos álbuns](ALBUMS.md), [limites e validação](VALIDATION.md) e [segurança](../SECURITY.md).
 
 Código sob MIT. Fontes têm licenças próprias em `public/fonts/`. Os modelos 3D, quando incluídos em `hardware/`, têm situação de licença independente; consulte seu README antes de redistribuir.

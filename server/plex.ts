@@ -107,6 +107,17 @@ export class Plex {
   async play(key: string, position: number) {
     const { plexUrl, calderaUrl, calderaClientId } = this.store.data.config;
     if (!calderaUrl || !calderaClientId) throw new Error('Configure Caldera URL and client ID.');
+    if (process.env.ALBUM_CARDS_AUDIO_HANDOFF === '1') {
+      for (let attempt = 0; ; attempt++) {
+        try {
+          await this.request(calderaUrl, '/resources', calderaClientId);
+          break;
+        } catch (error) {
+          if (attempt >= 9) throw error;
+          await new Promise((resolve) => setTimeout(resolve, 1000));
+        }
+      }
+    }
     const identity = (await this.request(plexUrl, '/identity')).MediaContainer?.machineIdentifier;
     if (!identity) throw new Error('Plex server identity is unavailable.');
     const tracks = await this.tracks(key);
@@ -156,5 +167,13 @@ export class Plex {
     );
     if (result.Response?.code && result.Response.code !== '200')
       throw new Error('Caldera rejected playback.');
+  }
+  async pause() {
+    const { calderaUrl, calderaClientId } = this.store.data.config;
+    await this.request(
+      calderaUrl,
+      '/player/playback/pause?type=music&commandID=' + String(++this.command),
+      calderaClientId,
+    );
   }
 }

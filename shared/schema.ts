@@ -13,6 +13,7 @@ export const albumSchema = z.object({
   artist: z.string().trim().min(1).max(300),
   year: z.string().max(20).default(''),
   label: z.string().max(300).default(''),
+  playbackProvider: z.enum(['auto', 'spotify', 'plex']).default('auto'),
   tracks: z.array(trackSchema).max(300),
   spotifyId: z
     .string()
@@ -33,11 +34,21 @@ export const configSchema = z.object({
   provider: z.enum(['spotify', 'plex']).default('spotify'),
   spotifyClientId: z.string().max(80).default(''),
   spotifyDeviceId: z.string().max(200).default(''),
+  spotifyDeviceName: z.string().max(200).default(''),
   plexUrl: z.string().max(300).default(''),
   plexToken: z.string().max(300).default(''),
   calderaUrl: z.string().max(300).default(''),
   calderaClientId: z.string().max(200).default(''),
   readerPath: z.string().max(300).default(''),
+  readerVendorId: z
+    .string()
+    .regex(/^([0-9a-f]{4})?$/)
+    .default(''),
+  readerProductId: z
+    .string()
+    .regex(/^([0-9a-f]{4})?$/)
+    .default(''),
+  readerName: z.string().max(300).default(''),
 });
 export type Config = z.infer<typeof configSchema>;
 export type ReaderState = {

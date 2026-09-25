@@ -361,6 +361,7 @@ function App() {
                 <button
                   onClick={() => {
                     const a = {
+                      playbackProvider: 'auto' as const,
                       id: crypto.randomUUID(),
                       title: '',
                       artist: '',
@@ -445,6 +446,7 @@ function App() {
               <button
                 onClick={() =>
                   setEdit({
+                    playbackProvider: 'auto',
                     id: crypto.randomUUID(),
                     title: '',
                     artist: '',

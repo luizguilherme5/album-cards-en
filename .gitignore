@@ -5,4 +5,4 @@ data/
 !.env.example
 *.log
 .DS_Store
-dev.sh
+/dev.sh

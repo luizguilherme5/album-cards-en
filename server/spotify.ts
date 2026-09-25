@@ -107,12 +107,39 @@ export class Spotify {
     return response.status === 204 ? {} : response.json();
   }
   async play(albumId: string, position: number) {
-    const device = this.store.data.config.spotifyDeviceId;
-    if (!device) throw new Error('Select a Spotify device first.');
+    let device = this.store.data.config.spotifyDeviceId;
+    if (!device && !this.store.data.config.spotifyDeviceName)
+      throw new Error('Select a Spotify device first.');
+    let target: any;
+    const attempts = process.env.ALBUM_CARDS_AUDIO_HANDOFF === '1' ? 10 : 1;
+    for (let attempt = 0; attempt < attempts; attempt++) {
+      const { devices = [] } = await this.api('/me/player/devices');
+      target = devices.find((d: any) => d.id === device && !d.is_restricted);
+      if (!target && this.store.data.config.spotifyDeviceName) {
+        const matches = devices.filter(
+          (d: any) => d.name === this.store.data.config.spotifyDeviceName && !d.is_restricted,
+        );
+        if (matches.length === 1) target = matches[0];
+      }
+      if (target) break;
+      if (attempt + 1 < attempts) await new Promise((resolve) => setTimeout(resolve, 2000));
+    }
+    if (!target)
+      throw new Error('Open Spotify on your selected device, play a song once, then scan again.');
+    if (target.id !== device || target.name !== this.store.data.config.spotifyDeviceName) {
+      device = target.id;
+      this.store.data.config.spotifyDeviceId = device;
+      this.store.data.config.spotifyDeviceName = target.name;
+      await this.store.save();
+    }
     await this.api('/me/player/play?device_id=' + encodeURIComponent(device), 'PUT', {
       context_uri: 'spotify:album:' + albumId,
       offset: { position },
       position_ms: 0,
     });
+  }
+  async pause() {
+    const device = this.store.data.config.spotifyDeviceId;
+    if (device) await this.api('/me/player/pause?device_id=' + encodeURIComponent(device), 'PUT');
   }
 }
