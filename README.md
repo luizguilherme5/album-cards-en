@@ -4,6 +4,8 @@
 
 > First testing release. UI, persistence, simulated reader events and PDFs have automated checks. Actual playback requires your Spotify account or Plex/Caldera installation; physical readers need validation on your host. No music, commercial album art or personal configurations are included.
 
+Read the illustrated tutorial: [English](https://somaisumdisco.affwork.dev/guias/rfid-player?lang=en) · [Português](https://somaisumdisco.affwork.dev/guias/rfid-player?lang=pt). This is the single official repository for both guides.
+
 ## Start here
 
 Install **Node.js 24 LTS**, then run inside this repository:

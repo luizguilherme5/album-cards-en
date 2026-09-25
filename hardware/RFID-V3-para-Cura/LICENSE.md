@@ -8,7 +8,7 @@ You may share and adapt these materials, including commercially, provided you gi
 
 Suggested attribution: “RFID V3 by Luiz Guilherme (@luizguilherme5), CC BY 4.0; modified by [your name, if applicable].”
 
-Source: https://github.com/luizguilherme5/album-cards-pt/tree/main/hardware
+Source: https://github.com/luizguilherme5/album-cards-en/tree/main/hardware
 License summary: https://creativecommons.org/licenses/by/4.0/
 Full legal terms: https://creativecommons.org/licenses/by/4.0/legalcode.en
 
